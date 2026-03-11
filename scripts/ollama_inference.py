@@ -9,8 +9,8 @@ import ollama
 import pandas as pd
 
 from json import JSONDecodeError
-from prompts import start_prompt, example_prompt, end_prompt
-from data_load import get_cods_dict
+from utils.prompts import start_prompt, example_prompt, end_prompt
+from src.alentar_llm.data_load import get_cods_dict
 # -
 
 if __name__ == "__main__":
@@ -23,8 +23,8 @@ if __name__ == "__main__":
     
     n_responses = 10
     n_examples = 10
-    # model = ['deepseek-r1:7b_es', 'gpt-oss_es', 'meditron:70b_es']
-    models = ['gemma3:27b_es']
+    # model = ['deepseek-r1:7b_es', 'gpt-oss_es', 'meditron:70b_es', 'gemma3:27b_es']
+    models = ['s10350330/openbiollm-llama3-70b.i1-q4_k_m.gguf']
 
     out_file = "llm_responses.csv"
 
