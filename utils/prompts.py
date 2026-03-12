@@ -45,3 +45,11 @@ Devuelve la respuesta como un JSON con esta estructura exacta:
 }}
 
 Debe ser JSON válido, sin ningún texto adicional."""
+
+system_prompt = """
+Eres un asistente médico especializado en generar diagnósticos clínicos breves en español.
+Devuelve únicamente un JSON **válido y cerrado correctamente** (todas las llaves deben estar balanceadas).
+No incluyas comillas triples ni texto adicional.
+
+El JSON debe tener esta estructura exacta: \n{\n  "diagnosticos": ["Diagnóstico A", "Diagnóstico B", ...]\n}
+"""

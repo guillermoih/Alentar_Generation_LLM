@@ -41,12 +41,12 @@ def get_bertscore(real_reports, da_reports):
     scorer = BERTScorer(lang="es", model_type="bert-base-multilingual-cased", rescale_with_baseline=False)
 
     da_reports_clean = [
-        str(report) for report in da_reports 
-        if str(report).strip() != "" and str(report).strip().lower() != "nan"
+        report for report in da_reports 
+        if report.strip() != "" and report.strip().lower() != "nan"
     ]
     real_reports_clean = [
-        str(report) for report in real_reports 
-        if str(report).strip() != "" and str(report).strip().lower() != "nan"
+        report for report in real_reports 
+        if report.strip() != "" and report.strip().lower() != "nan"
     ]
     random_sample = np.random.choice(real_reports_clean, len(da_reports_clean)).tolist()
 
@@ -97,29 +97,43 @@ def calculate_sms(text1, text2):
     return doc1.similarity(doc2)
 
 def calculate_all_sms(real_reports, da_reports):
-    return [calculate_sms(h, s) for h, s in zip(np.random.choice(real_reports, len(da_reports)), da_reports)]
+    return [calculate_sms(str(h), str(s)) for h, s in zip(np.random.choice(real_reports, len(da_reports)), da_reports)]
 
 
 # -
 
 # ## Embedding visualization
 
-def show_embeddings(emb_real, emb_da):
-    all_embeddings = np.vstack([emb_real, emb_da])
-    labels = ['Real'] * len(emb_real) + ['Synthetic'] * len(emb_da)
-
+def show_embeddings(emb_real, emb_da_dict):
+    """
+    emb_real: np.array with the real data embeddings
+    emb_da_dict: dict where keys are model names (eg: 'deepseek-r1') 
+                 and values ar np.arrays of synthetic data embeddings
+    """
+    all_embeddings = [emb_real]
+    labels = ['Real'] * len(emb_real)
+    for name, embeddings in emb_da_dict.items():
+        all_embeddings.append(embeddings)
+        labels.extend([f'Synthetic {name}'] * len(embeddings))
+    all_embeddings_matrix = np.vstack(all_embeddings)
+    
     # t-SNE
-    tsne = TSNE(n_components=2, perplexity=30, random_state=42, verbose=1)
-    embeddings_2d_tsne = tsne.fit_transform(all_embeddings)
+    tsne = TSNE(n_components=2, perplexity=30, random_state=42, verbose=0)
+    embeddings_2d_tsne = tsne.fit_transform(all_embeddings_matrix)
     # UMAP
-    reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42, verbose=True)
-    embeddings_2d_umap = reducer.fit_transform(all_embeddings)
+    reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
+    embeddings_2d_umap = reducer.fit_transform(all_embeddings_matrix)
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
-    sns.scatterplot(x=embeddings_2d_tsne[:,0], y=embeddings_2d_tsne[:,1], hue=labels, ax=ax1, alpha=0.6)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(25, 7))
+    sns.scatterplot(x=embeddings_2d_tsne[:,0], y=embeddings_2d_tsne[:,1], 
+                    hue=labels, ax=ax1, alpha=0.5, palette='viridis')
     ax1.set_title('t-SNE embedding map')
-    sns.scatterplot(x=embeddings_2d_umap[:,0], y=embeddings_2d_umap[:,1], hue=labels, ax=ax2, alpha=0.6)
+    ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    sns.scatterplot(x=embeddings_2d_umap[:,0], y=embeddings_2d_umap[:,1], 
+                    hue=labels, ax=ax2, alpha=0.5, palette='viridis')
     ax2.set_title('UMAP embedding map')
+    ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+
     plt.tight_layout()
     plt.show()
 

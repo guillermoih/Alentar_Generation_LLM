@@ -9,7 +9,7 @@ import ollama
 import pandas as pd
 
 from json import JSONDecodeError
-from utils.prompts import start_prompt, example_prompt, end_prompt
+from utils.prompts import start_prompt, example_prompt, end_prompt, system_prompt
 from src.alentar_llm.data_load import get_cods_dict
 # -
 
@@ -23,8 +23,9 @@ if __name__ == "__main__":
     
     n_responses = 10
     n_examples = 10
-    # model = ['deepseek-r1:7b_es', 'gpt-oss_es', 'meditron:70b_es', 'gemma3:27b_es']
-    models = ['s10350330/openbiollm-llama3-70b.i1-q4_k_m.gguf']
+#     model = ['deepseek-r1:7b_es', 'gpt-oss_es', 'meditron:70b_es', 'gemma3:27b_es']
+#     models = ['s10350330/openbiollm-llama3-70b.i1-q4_k_m.gguf']
+    models = ['qwen3.5:35b-a3b-q8_0']
 
     out_file = "llm_responses.csv"
 
@@ -62,6 +63,10 @@ if __name__ == "__main__":
                 model=model,
                 messages=
                 [{
+                    "role": "system",
+                    "content": system_prompt
+                 },
+                {
                     'role': 'user',
                     'content': prompt,
                 }],
