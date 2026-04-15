@@ -11,6 +11,7 @@ import pandas as pd
 from json import JSONDecodeError
 from utils.prompts import start_prompt, example_prompt, end_prompt, system_prompt
 from src.alentar_llm.data_load import get_cods_dict
+from src.alentar_llm.data_load import clean_data
 # -
 
 if __name__ == "__main__":
@@ -19,13 +20,15 @@ if __name__ == "__main__":
     
     # Load examples .csv and filter unrevised ones
     df = pd.read_csv('Informes-Urgencias/EJEI_nocod_Clasificator_2024_07_ 04. 4.fin.csv')
-    df = df[df["REVISADO"] == 1]
+    df = clean_data(df, cod_names)
     
     n_responses = 10
     n_examples = 10
 #     model = ['deepseek-r1:7b_es', 'gpt-oss_es', 'meditron:70b_es', 'gemma3:27b_es']
 #     models = ['s10350330/openbiollm-llama3-70b.i1-q4_k_m.gguf']
-    models = ['qwen3.5:35b-a3b-q8_0']
+    models = ['s10350330/openbiollm-llama3-70b.i1-q4_k_m.gguf',
+              'deepseek-r1:32b',
+              'qwen3.5:35b-a3b-q8_0']
 
     out_file = "llm_responses.csv"
 

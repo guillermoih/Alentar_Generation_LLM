@@ -104,33 +104,35 @@ def calculate_all_sms(real_reports, da_reports):
 
 # ## Embedding visualization
 
-def show_embeddings(emb_real, emb_da_dict):
-    """
-    emb_real: np.array with the real data embeddings
-    emb_da_dict: dict where keys are model names (eg: 'deepseek-r1') 
-                 and values ar np.arrays of synthetic data embeddings
-    """
+def combine_embeddigs(emb_real, emb_da_dict):
     all_embeddings = [emb_real]
     labels = ['Real'] * len(emb_real)
     for name, embeddings in emb_da_dict.items():
         all_embeddings.append(embeddings)
         labels.extend([f'Synthetic {name}'] * len(embeddings))
-    all_embeddings_matrix = np.vstack(all_embeddings)
-    
-    # t-SNE
-    tsne = TSNE(n_components=2, perplexity=30, random_state=42, verbose=0)
-    embeddings_2d_tsne = tsne.fit_transform(all_embeddings_matrix)
-    # UMAP
-    reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
-    embeddings_2d_umap = reducer.fit_transform(all_embeddings_matrix)
+    return np.vstack(all_embeddings), labels
 
+
+# +
+def get_tsne_embeddings(all_embeddings):
+    tsne = TSNE(n_components=2, perplexity=30, random_state=42, verbose=0)
+    return tsne.fit_transform(all_embeddings)
+
+def get_umap_embeddings(all_embeddings):
+    reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, random_state=42)
+    return reducer.fit_transform(all_embeddings)
+
+
+# -
+
+def show_embeddings(embeddings_2d_tsne, embeddings_2d_umap, labels):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(25, 7))
     sns.scatterplot(x=embeddings_2d_tsne[:,0], y=embeddings_2d_tsne[:,1], 
-                    hue=labels, ax=ax1, alpha=0.5, palette='viridis')
+                    hue=labels, ax=ax1, alpha=0.5, palette='turbo')
     ax1.set_title('t-SNE embedding map')
     ax1.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     sns.scatterplot(x=embeddings_2d_umap[:,0], y=embeddings_2d_umap[:,1], 
-                    hue=labels, ax=ax2, alpha=0.5, palette='viridis')
+                    hue=labels, ax=ax2, alpha=0.5, palette='turbo')
     ax2.set_title('UMAP embedding map')
     ax2.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 

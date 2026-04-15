@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+import re
 import pandas as pd
 
 
@@ -31,3 +33,12 @@ def get_cods_dict(file_path):
     # cod_names = {k: v for k, v in cod_names.items() if v != '<none>'} # Filter keys with <none> value
     
     return cod_names
+
+
+def clean_data(df, cods):
+    df = df[df["REVISADO"] == 1] # Filter unrevised texts
+    df = df[df['EJEIDiagnóstico'].str.len() > 1] # Filter short texts
+    df = df[df['EJEIDiagnóstico'].str.contains(r'[a-zA-ZáéíóúÁÉÍÓÚñÑ]', na=False)]# Filter reports without text
+    regex = '|'.join(map(re.escape, cods))
+    df = df[~df['EJEIDiagnóstico'].str.contains(regex, na=False, regex=True)]
+    return df
